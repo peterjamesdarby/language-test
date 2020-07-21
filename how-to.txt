@@ -1,0 +1,215 @@
+React Translations using i18n
+
+
+Basic Translations
+
+terminal: create-react-app language-test --template typescript
+
+terminal: npm install i18next --save
+terminal: npm install react-i18next –save
+
+create i18n.js file as follows:
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+
+
+const resources = {
+    en: {
+      translation: {
+        "welcome": "Welcome to the Customer Portal"
+      }
+    },
+    fr: {
+      translation : {
+        "welcome": "Bienvenue sur le portail client"
+      }
+    }
+  };
+  
+  i18n
+    .use(initReactI18next) // passes i18n down to react-i18next
+    .init({
+      resources,
+      lng: "fr",
+  
+      keySeparator: false, // we do not use keys in form messages.welcome
+  
+      interpolation: {
+        escapeValue: false // react already safes from xss
+      }
+    });
+
+    export default i18n;
+
+In a tidied up App.tsx add the following highlighted lines:
+
+import React from 'react';
+import './App.css';
+import './i18n';
+import { useTranslation } from 'react-i18next';
+
+
+
+function App() {
+  const { t, i18n } = useTranslation();
+  return (
+    <div className="App">
+      <header className="App-header">
+        <div>{t('welcome')}</div>
+      </header>
+    </div>
+  );
+}
+
+export default App;
+
+
+terminal: npm start
+should display, ‘Bienvenue sur le portail client’
+
+
+Date Formats
+
+
+terminal: npm install moment --save
+in i18n.js import:
+
+import moment from "moment"
+
+update resources const to look like the following:
+
+const resources = {
+    en: {
+      translation: {
+        "welcome": "Welcome to the Customer Portal",
+        "key": "{{- date, DD-MM-YYYY}}"
+      }
+    },
+    fr: {
+      translation : {
+        "welcome": "Bienvenue sur le portail client",
+        "key": "{{- date, DD/MM/YYYY}}"
+      }
+    },
+    us: {
+      translation : {
+        "welcome": "Hi there, welcome to the Customer Portal",
+        "key": "{{- date, MM/DD/YYYY}}"
+      }
+    }
+  };
+
+The - against date tells i18next not to escape our formatter’s returned value before outputting it via t(), so if the translation were set to US the date would be displayed as ‘07/20/2020’ and not ‘07&#x2F;20&#x2F;2020’
+
+Update the interpolation section to look like:
+      interpolation: {
+        format: function(value, format, lng) {
+          if(value instanceof Date) return moment(value).format(format);
+          return value;
+        },
+        escapeValue: false // react already safes from xss
+      }
+
+In App.tsx add 
+<div>{t('key', { date: new Date() })}</div>
+
+
+
+
+
+Currencies
+
+terminal: npm install --save react-intl
+
+terminal: npm install @types/numeral
+
+create a new file, number-local.js:
+
+import numeral from "numeral";
+
+// switch between locales
+numeral.locale('en-UK');
+
+numeral.register('locale', 'fr', {
+  delimiters: {
+      thousands: ' ',
+      decimal: ','
+  },
+  abbreviations: {
+      thousand: 'k',
+      million: 'm',
+      billion: 'b',
+      trillion: 't'
+  },
+  ordinal : function (number) {
+      return number === 1 ? 'er' : 'ème';
+  },
+  currency: {
+      symbol: '€'
+  }
+});
+
+numeral.register('locale', 'en-US', {
+  delimiters: {
+      thousands: ',',
+      decimal: '.'
+  },
+  abbreviations: {
+      thousand: 'k',
+      million: 'm',
+      billion: 'b',
+      trillion: 't'
+  },
+  ordinal: function(number) {
+      var b = number % 10;
+      return (~~(number % 100 / 10) === 1) ? 'th' :
+          (b === 1) ? 'st' :
+          (b === 2) ? 'nd' :
+          (b === 3) ? 'rd' : 'th';
+  },
+  currency: {
+      symbol: '$'
+  }
+});
+
+numeral.register('locale', 'en-UK', {
+  delimiters: {
+      thousands: ',',
+      decimal: '.'
+  },
+  abbreviations: {
+      thousand: 'k',
+      million: 'm',
+      billion: 'b',
+      trillion: 't'
+  },
+  ordinal: function(number) {
+      var b = number % 10;
+      return (~~(number % 100 / 10) === 1) ? 'th' :
+          (b === 1) ? 'st' :
+          (b === 2) ? 'nd' :
+          (b === 3) ? 'rd' : 'th';
+  },
+  currency: {
+      symbol: '£'
+  }
+});
+
+In App.tsx, import this:
+import './number-local';
+
+and add a test div:
+<div>{numeral(5000).format('$0,0.00')}</div>
+
+
+Auto Detect Language
+
+See 'c) Auto detect the user language' in https://react.i18next.com/legacy-v9/step-by-step-guide
+
+And ‘language detector’ in https://www.i18next.com/overview/plugins-and-utils
+Useful Resources
+
+https://react.i18next.com/getting-started
+https://phrase.com/blog/posts/javascript-i18n-i18next-moment-js/
+http://numeraljs.com/#use-it
+
