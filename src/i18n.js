@@ -16,7 +16,7 @@ const resources = {
         "datekey": "{{- date, DD/MM/YYYY}}"
       }
     },
-    'en-US': {
+    'en-GB': {
       translation : {
         "welcome": "Hi there, welcome to the Customer Portal",
         "datekey": "{{- date, MM/DD/YYYY}}" // The - tells i18next not to escape our formatter’s returned value before outputting it via t()
@@ -30,7 +30,7 @@ const resources = {
     .init({
       resources,
       lng: process.env.REACT_APP_LANGUAGE,
-      fallbackLng: "en-UK", // use en if detected lng is not available
+      fallbackLng: "en-GB", // use en if detected lng is not available
   
       keySeparator: false, // we do not use keys in form messages.welcome
   

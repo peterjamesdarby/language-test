@@ -1,7 +1,7 @@
 import numeral from "numeral";
 
 // switch between locales
-numeral.locale(process.env.REACT_APP_LANGUAGE);
+numeral.locale(process.env.REACT_APP_CURRENCY);
 
 numeral.register('locale', 'fr', {
   delimiters: {
@@ -45,7 +45,7 @@ numeral.register('locale', 'en-US', {
   }
 });
 
-numeral.register('locale', 'en-UK', {
+numeral.register('locale', 'en-GB', {
   delimiters: {
       thousands: ',',
       decimal: '.'
